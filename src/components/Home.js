@@ -9,19 +9,23 @@ import Thumb from './Thumb'
 import Spinner from './Spinner'
 import SearchBar from './SearchBar';
 import Button from './Button'
+// import Slider from './Slider'
 import NoImage from '../images/no_image.jpg'
 
 const Home = () => {
-    const { state, loading, error, searchTerm, setSearchTerm} = useHomeFetch()
+    const { state, loading, error, searchTerm, setSearchTerm, setIsLoadingMore} = useHomeFetch()
+
+    if (error) return <div>Something went wrong</div>
+    
     return (
         <>
             {!searchTerm && state.results[0] 
             && <HeroImage 
-                    image={`${IMAGE_BASE_URL}${BACKDROP_SIZE}${state.results[0].backdrop_path}`}
-                    title={state.results[0].original_title}
-                    text={state.results[0].overview}    
-               />
-            }
+            image={`${IMAGE_BASE_URL}${BACKDROP_SIZE}${state.results[0].backdrop_path}`}
+            title={state.results[0].original_title}
+            text={state.results[0].overview}    
+            />
+        }
             <SearchBar setSearchTerm={setSearchTerm}/>
 
             <Grid header={searchTerm ? 'Search Result' : 'Popular Movies'}>
@@ -31,17 +35,18 @@ const Home = () => {
                         clickable
                         image={
                             movie.poster_path
-                              ? IMAGE_BASE_URL+POSTER_SIZE+movie.poster_path
-                              : NoImage
+                            ? IMAGE_BASE_URL+POSTER_SIZE+movie.poster_path
+                            : NoImage
                         }
                         movieId={movie.id}
-                    />
-                ))}
+                        />
+                        ))}
             </Grid>
             {loading && < Spinner />}
             {state.page < state.total_pages && !loading && (
-                <Button text='Load More' />
+                <Button text='Load More' callback={()=> setIsLoadingMore(true)}/>
             )}
+            {/* <Slider movies={state.results.slice(0, 5)}/> */}
         </>
     )
 }

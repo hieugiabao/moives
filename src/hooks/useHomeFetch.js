@@ -1,5 +1,6 @@
 import API from '../API'
 import { useState, useEffect } from 'react'
+import {isPersistedState} from '../hepler'
 
 const initialState = {
     page: 0,
@@ -13,6 +14,7 @@ export const useHomeFetch = () => {
     const [state, setState] = useState(initialState)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(false)
+    const [isLoadingMore, setIsLoadingMore] = useState(false)
 
     
     const fetchMovies = async (page, searchTerm='') => {
@@ -33,17 +35,38 @@ export const useHomeFetch = () => {
         setLoading(false)
     }
 
-    // Initial and search
+    // Initial and initial
     useEffect(() => {
+        if (!searchTerm) {
+            const sessionState = isPersistedState('homeState')
+            if (sessionState) {
+                setState(sessionState)
+                return
+            }
+        }
         setState(initialState)
         fetchMovies(1, searchTerm)
     }, [searchTerm])
+
+    // Load more
+    useEffect(() => {
+        if (!isLoadingMore) return
+        fetchMovies(state.page+1, searchTerm)
+        setIsLoadingMore(false)
+    }, [isLoadingMore, searchTerm, state.page])
+
+    useEffect(() => {
+        if (!searchTerm) {
+            sessionStorage.setItem('homeState', JSON.stringify(state))
+        }
+    }, [searchTerm, state])
 
     return {
         state,
         loading,
         error,
         searchTerm,
-        setSearchTerm
+        setSearchTerm,
+        setIsLoadingMore
     }
 }

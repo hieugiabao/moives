@@ -9,8 +9,8 @@ export const Image = styled.img`
     animation: animateThumb 0.5s;
 
     :hover {
-        opacity: 0.75;
-        cursor: pointer;
+        opacity: ${({unclick}) => unclick ? '1' : '0.75'};
+        cursor: ${({unclick}) => unclick ? 'initial' : 'pointer'};    
     }
 
     @keyframes animateThumb {
